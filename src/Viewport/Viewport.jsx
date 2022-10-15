@@ -1,10 +1,10 @@
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import './Viewport.css'
 import Main from "./Main/Main";
 
 import GeoJSON1 from '../GeoJSON/SE_State_Management_Polygons_1.json'
 import GeoJSON2 from '../GeoJSON/SE_State_Management_Polygons_2.json'
-import {union} from "@turf/turf";
+import {intersect, union} from "@turf/turf";
 
 
 
@@ -54,6 +54,39 @@ function Viewport() {
             currFeatureCollection.features[secondSelection[1]])
         console.log("UNION: ", JSON.stringify(theUnion))
 
+
+        const removeValFromIndex = [firstSelection[1], secondSelection[1]];
+
+        const indexSet = new Set(removeValFromIndex);
+
+        const arrayWithValuesRemoved = currFeatureCollection.features.filter((value, i) => !indexSet.has(i));
+
+        currFeatureCollection = {
+            ...currFeatureCollection,
+            features: [...arrayWithValuesRemoved, {
+                ...theUnion
+            }]
+        }
+
+        let t = [...polygonObjects];
+        t[firstSelection[0]] = currFeatureCollection;
+        setPolygonObjects(t)
+
+        setCurrentObject(currFeatureCollection)
+
+
+        console.log(JSON.stringify(polygonObjects[firstSelection[0]]))
+        console.log(JSON.stringify(currFeatureCollection))
+
+    }
+
+    function handleIntersection(e) {
+        e.preventDefault();
+        let currFeatureCollection = polygonObjects[firstSelection[0]]
+        let theUnion = intersect(
+            currFeatureCollection.features[firstSelection[1]],
+            currFeatureCollection.features[secondSelection[1]])
+        console.log("Intersect: ", JSON.stringify(theUnion))
 
 
         const removeValFromIndex = [firstSelection[1], secondSelection[1]];
@@ -118,8 +151,12 @@ function Viewport() {
                     {firstSelection.length ? `Polygon: ${(firstSelection[1] + 1)} ` : ''}
                     <br/>
                     {secondSelection.length ? `Polygon: ${(secondSelection[1] + 1)} ` : ''}
-
-                    <button onClick={handleUnion}/>
+                    <br/>
+                    <br/>
+                    <button onClick={handleUnion}>Calculate Union</button>
+                    <br/>
+                    <br/>
+                    <button onClick={handleIntersection}>Calculate Intersection</button>
                 </h2>
             </div>
         </div>

@@ -10,7 +10,7 @@ function Main(props) {
     // eslint-disable-next-line react/prop-types
     let [geoJSON, setgeoJSON] = useState([...props.geojson.features]);
     // eslint-disable-next-line react/prop-types
-    useEffect(() => { setgeoJSON([...props.geojson.features]); }, [props.geojson.features]);
+    useEffect(() => { console.log('H:', JSON.stringify(props.geojson)); setgeoJSON([...props.geojson.features]) }, [props.geojson.features]);
 
     let getBounds = () => {
         let allCoords = [...geoJSON.map((polygon) => {

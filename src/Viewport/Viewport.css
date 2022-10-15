@@ -13,6 +13,11 @@
   outline-style: solid;
 }
 
+h1 {
+  grid-column: 1 / 5;
+  color: #213547;
+}
+
 .ViewPort {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -22,7 +27,17 @@
 
 }
 
-.list-polygon-item {
+.list-feature-collection {
   width: 100%;
   outline-style: solid;
+  margin-bottom: 10px;
+}
+.list-polygon-item {
+  width: 80%;
+  outline-style: solid;
+  margin-bottom: 10px;
+}
+
+.Selector2 {
+  background: #535bf2;
 }

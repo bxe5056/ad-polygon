@@ -39,6 +39,9 @@ function Viewport() {
         } else {
             setFirstSelection([])
             setSecondSelection([])
+            setCurrentItem(index)
+            setCurrentObject(polygonObjects[index])
+
         }
         console.log("Item: ", JSON.stringify(polygonObjects[index].features[pIndex]))
     }

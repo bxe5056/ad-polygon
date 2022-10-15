@@ -3,7 +3,7 @@ import './MenuBar.css'
 function MenuBar() {
     return (
         <div className="MenuBar">
-            S
+            This is a header bar
         </div>
     )
 }

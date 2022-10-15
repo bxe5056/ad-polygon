@@ -1,34 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useState } from 'react'
+import './Main.css'
+import leaflet from 'leaflet'
+import {MapContainer, Marker, Polygon, Popup, TileLayer} from "react-leaflet";
 
-function App() {
-  const [count, setCount] = useState(0)
+function Main(props) {
+    // eslint-disable-next-line react/prop-types
+    let geoJSON = [...props.geojson.features];
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+
+    // let leafletObject = () => leaflet.map('map').setView([51.505, -0.09], 13);
+    const position = [0,0]
+
+    let getItems = () => {
+        let out = geoJSON.map((feature, index) => {
+            console.log("COORDINATES: ", feature.geometry.coordinates[0])
+            return (
+                <Polygon pathOptions={{ color: 'purple' }} positions={feature.geometry.coordinates[0]} key={index}/>
+            )
+        })
+        console.log("OUT: ", out)
+        return out;
+    }
+
+    return (
+        <div className="Viewer">
+            {/*{JSON.stringify(geoJSON)}*/}
+            <MapContainer center={position} zoom={13} scrollWheelZoom={false}>
+
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {getItems()}
+                <Polygon pathOptions={{ color: 'purple' }} positions={geoJSON[0].geometry.coordinates[0]} key={0}/>
+            </MapContainer>
+        </div>
+    )
 }
 
-export default App
+export default Main

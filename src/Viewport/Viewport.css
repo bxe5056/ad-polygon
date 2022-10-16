@@ -111,3 +111,18 @@ h2 {
 .text-green {
   color: forestgreen;
 }
+
+.error-dialog {
+  color: #842029;
+  background: #f8d7da;
+  border: 1px solid #f5c2c7;
+  margin-top: 25px;
+}
+
+.error-message {
+  font-weight: bold;
+}
+
+.error-sub-message {
+  font-size: 90%;
+}

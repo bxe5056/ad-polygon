@@ -19,14 +19,23 @@ function Viewport() {
     let [currentFeatureCollection, setCurrentFeatureCollection] = useState(featureCollections[0])
     let [firstPolygonSelection, setFirstPolygonSelection] = useState([])
     let [secondPolygonSelection, setSecondPolygonSelection] = useState([])
+    let [errorMsgPrompt, setErrorMsgPrompt] = useState('');
+    let [errorSubMsgPrompt, setErrorSubMsgPrompt] = useState('');
+
+    let clearError = () => {
+        setErrorMsgPrompt('')
+        setErrorSubMsgPrompt('')
+    }
 
     let handleFeatureCollectionSelectButton = (e, index) => {
         e.preventDefault();
+        clearError()
         setCurrentFeatureCollection(featureCollections[index])
     }
 
     let handlePolygonSelectButton = (e, collectionIndex, polygonIndex) => {
         e.preventDefault();
+        clearError()
         if(firstPolygonSelection.length === 0) {
             setFirstPolygonSelection([collectionIndex, polygonIndex])
             setCurrentFeatureCollection(featureCollections[collectionIndex])
@@ -70,9 +79,8 @@ function Viewport() {
 
     let generatePolygonUnion = e => {
         e.preventDefault();
-
+        clearError()
         let currentFeatureCollection = featureCollections[firstPolygonSelection[0]]
-
         try {
             let newPolygon = union(
                 currentFeatureCollection.features[firstPolygonSelection[1]],
@@ -81,13 +89,18 @@ function Viewport() {
             if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Union is not calculable')
             generateNewCollection(newPolygon)
         } catch (e) {
-            // TODO: Surface this error to the user
-            console.error("There was an error calculating the union. Most likely the two polygons are not eligible for this operation.")
+            let msg = 'There was a problem calculating the union.'
+            let subMsg = 'Most likely the two polygons are not eligible for this operation.'
+            console.error(msg, subMsg)
+            setErrorMsgPrompt(msg)
+            setErrorSubMsgPrompt(subMsg)
+
         }
     };
 
     let generatePolygonIntersection = e => {
         e.preventDefault();
+        clearError()
         let currFeatureCollection = featureCollections[firstPolygonSelection[0]]
         try {
             let newPolygon = intersect(
@@ -96,8 +109,11 @@ function Viewport() {
             if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Intersection is not calculable')
             generateNewCollection(newPolygon)
         } catch (e) {
-            // TODO: Surface this error to the user
-            console.error("There was an error calculating the intersection. Most likely the two polygons are not eligible for this operation.")
+            let msg = 'There was a problem calculating the intersection.'
+            let subMsg = 'Most likely the two polygons are not eligible for this operation.'
+            console.error(msg, subMsg)
+            setErrorMsgPrompt(msg)
+            setErrorSubMsgPrompt(subMsg)
         }
     };
 
@@ -131,7 +147,7 @@ function Viewport() {
                     }
                 </div>
             )
-        } )
+        })
     }
 
     let getStatisticsPanel = () => {
@@ -151,8 +167,16 @@ function Viewport() {
                     {secondPolygonSelection.length ? `Area: ${polygon2area()}` : ''}
                 </div>
                 <div className={'margin-bottom'}>{secondPolygonSelection.length ? `Total Area: ${totalArea()}` : ''}</div>
-
             </h2>
+        )
+    }
+
+    let getErrorPrompt = () => {
+        return (
+            <div className={'error-dialog'}>
+                <div className={'error-message'}>Error: {errorMsgPrompt}</div>
+                <div className={'error-sub-message'}>{errorSubMsgPrompt}</div>
+            </div>
         )
     }
     
@@ -174,6 +198,7 @@ function Viewport() {
                             Calculate Intersection
                         </button>
                     </div>
+                    {errorMsgPrompt ? getErrorPrompt() : ''}
                     {getStatisticsPanel()}
                 </div>
             )

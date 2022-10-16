@@ -90,7 +90,7 @@ function Viewport() {
             generateNewCollection(newPolygon)
         } catch (e) {
             let msg = 'There was a problem calculating the union.'
-            let subMsg = 'Most likely the two polygons are not eligible for this operation.'
+            let subMsg = 'The two polygons may not be eligible for this operation.'
             console.error(msg, subMsg)
             setErrorMsgPrompt(msg)
             setErrorSubMsgPrompt(subMsg)
@@ -110,7 +110,7 @@ function Viewport() {
             generateNewCollection(newPolygon)
         } catch (e) {
             let msg = 'There was a problem calculating the intersection.'
-            let subMsg = 'Most likely the two polygons are not eligible for this operation.'
+            let subMsg = 'The two polygons may not be eligible for this operation.'
             console.error(msg, subMsg)
             setErrorMsgPrompt(msg)
             setErrorSubMsgPrompt(subMsg)

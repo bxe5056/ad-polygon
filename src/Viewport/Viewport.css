@@ -144,8 +144,9 @@ h2 {
 
 .error-message {
   font-weight: bold;
+  font-size: 90%;
 }
 
 .error-sub-message {
-  font-size: 90%;
+  font-size: 80%;
 }

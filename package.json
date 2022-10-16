@@ -2,6 +2,7 @@
   "name": "ad-polygon",
   "private": true,
   "version": "0.0.0",
+  "homepage": "/ad-polygon",
   "type": "module",
   "scripts": {
     "dev": "vite",

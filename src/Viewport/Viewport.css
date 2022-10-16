@@ -139,14 +139,16 @@ h2 {
   color: #842029;
   background: #f8d7da;
   border: 1px solid #f5c2c7;
-  margin-top: 25px;
+  margin: 25px 5px auto auto
 }
 
 .error-message {
   font-weight: bold;
-  font-size: 90%;
+  font-size: 80%;
+  margin-left: 5px;
 }
 
 .error-sub-message {
-  font-size: 80%;
+  font-size: 70%;
+  margin-left: 5px;
 }

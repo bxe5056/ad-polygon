@@ -11,9 +11,17 @@ function PolygonViewer(props) {
 
     // eslint-disable-next-line react/prop-types
     let [geoJSON, setGeoJSON] = useState([...props.geojson.features]);
+    // eslint-disable-next-line react/prop-types
+    let [firstPolygon, setFirstPolygon] = useState(props.firstPolygon);
+    // eslint-disable-next-line react/prop-types
+    let [secondPolygon, setSecondPolygon] = useState(props.secondPolygon);
 
     // eslint-disable-next-line react/prop-types
     useEffect(() => { setGeoJSON([...props.geojson.features]) }, [props.geojson.features]);
+    // eslint-disable-next-line react/prop-types
+    useEffect(() => { setFirstPolygon(props.firstPolygon) }, [props.firstPolygon]);
+    // eslint-disable-next-line react/prop-types
+    useEffect(() => { setSecondPolygon(props.secondPolygon) }, [props.secondPolygon]);
 
     let getBounds = () => {
         let flattenedCoordinates = [...geoJSON.map((polygon) => {
@@ -33,8 +41,15 @@ function PolygonViewer(props) {
 
     let getPolygons = () => {
         return geoJSON.map((feature, index) => {
+            let color = 'purple';
+            if (firstPolygon[1] !== undefined) {
+                if (index === firstPolygon[1]) color = 'blue';
+            }
+            if (secondPolygon[1] !== undefined) {
+                if (index === secondPolygon[1]) color = 'green';
+            }
             return (
-                <Polygon pathOptions={{ color: 'purple' }} positions={feature.geometry.coordinates[0]} key={index}/>
+                <Polygon pathOptions={{ color: color }} positions={feature.geometry.coordinates[0]} key={index}/>
             )
         })
     }

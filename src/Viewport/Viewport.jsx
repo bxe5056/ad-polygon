@@ -142,12 +142,12 @@ function Viewport() {
             <h2>
                 <div className={'margin-bottom'}>Current Collection: {(firstPolygonSelection[0] + 1)}</div>
                 <div className={'margin-bottom'}>You have selected:</div>
-                <div className={'text-black indent-20-px margin-bottom'}>Polygon: {(firstPolygonSelection[1] + 1)}</div>
+                <div className={'text-black indent-20-px margin-bottom text-blue'}>Polygon: {(firstPolygonSelection[1] + 1)}</div>
                 <div className={'indent-20-px margin-bottom-extra'}>Area: {polygon1area()}</div>
-                <div className={'indent-20-px margin-bottom'}>
+                <div className={'indent-20-px margin-bottom text-green'}>
                     {secondPolygonSelection.length ? `Polygon: ${(secondPolygonSelection[1] + 1)} ` : ''}
                 </div>
-                <div className={'indent-20-px margin-bottom-extra'}>
+                <div className={'indent-20-px margin-bottom-extra '}>
                     {secondPolygonSelection.length ? `Area: ${polygon2area()}` : ''}
                 </div>
                 <div className={'margin-bottom'}>{secondPolygonSelection.length ? `Total Area: ${totalArea()}` : ''}</div>
@@ -188,7 +188,7 @@ function Viewport() {
                 { getPolygonButtonList() }
             </div>
             <div className="polygon-viewer-panel">
-                <PolygonViewer geojson={currentFeatureCollection}/>
+                <PolygonViewer geojson={currentFeatureCollection} firstPolygon={firstPolygonSelection} secondPolygon={secondPolygonSelection}/>
             </div>
             <div className="statistics-panel">
                 { getSelectionPanel() }

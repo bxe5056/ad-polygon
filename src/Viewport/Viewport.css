@@ -103,3 +103,11 @@ h1 {
 h2 {
   color: #1a1a1a;
 }
+
+.text-blue {
+  color: dodgerblue;
+}
+
+.text-green {
+  color: forestgreen;
+}

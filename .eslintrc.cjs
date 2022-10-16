@@ -19,6 +19,12 @@ module.exports = {
     "rules": {
         "indent": [1, 4],
         "react/react-in-jsx-scope": [0],
-        "no-unused-vars": [1]
+        "no-unused-vars": [1],
+        "object-curly-spacing": [1, 'always']
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
     }
 }

@@ -1,163 +1,197 @@
-import {useState} from 'react'
+import { useState } from 'react'
 import './Viewport.css'
-import Main from "./Main/Main";
 
+import PolygonViewer from "./PolygonViewer/PolygonViewer.jsx";
+
+// Import JSON(s) from File.
+// TODO: Do this programmatically, and/or a way to upload a JSON dump in-browser
 import GeoJSON1 from '../GeoJSON/SE_State_Management_Polygons_1.json'
 import GeoJSON2 from '../GeoJSON/SE_State_Management_Polygons_2.json'
-import {intersect, union} from "@turf/turf";
 
-
+// TODO: Switch these imports to specific modules instead of mega 'turf' package
+import { intersect, union, area } from "@turf/turf";
 
 function Viewport() {
-    let [polygonObjects, setPolygonObjects] = useState([
-        {...GeoJSON1},
-        {...GeoJSON2}
+    let [featureCollections, setFeatureCollections] = useState([
+        { ...GeoJSON1 },
+        { ...GeoJSON2 }
     ])
+    let [currentFeatureCollection, setCurrentFeatureCollection] = useState(featureCollections[0])
+    let [firstPolygonSelection, setFirstPolygonSelection] = useState([])
+    let [secondPolygonSelection, setSecondPolygonSelection] = useState([])
 
-
-
-    const [currentItem, setCurrentItem] = useState(0)
-    const [currentObject, setCurrentObject] = useState(polygonObjects[0])
-    const [firstSelection, setFirstSelection] = useState([])
-    const [secondSelection, setSecondSelection] = useState([])
-
-    function handleFeatureCollectionButton(e, index) {
+    let handleFeatureCollectionSelectButton = (e, index) => {
         e.preventDefault();
-        setCurrentItem(index)
-        setCurrentObject(polygonObjects[index])
+        setCurrentFeatureCollection(featureCollections[index])
     }
 
-    function handlePolygonButton(e, index, pIndex) {
+    let handlePolygonSelectButton = (e, collectionIndex, polygonIndex) => {
         e.preventDefault();
-        if(firstSelection.length === 0) {
-            setFirstSelection([index, pIndex])
-            setCurrentItem(index)
-            setCurrentObject(polygonObjects[index])
+        if(firstPolygonSelection.length === 0) {
+            setFirstPolygonSelection([collectionIndex, polygonIndex])
+            setCurrentFeatureCollection(featureCollections[collectionIndex])
         }
-        else if(secondSelection.length === 0 && index === firstSelection[0]) {
-            setSecondSelection([index, pIndex])
+        else if(secondPolygonSelection.length === 0 && collectionIndex === firstPolygonSelection[0] && polygonIndex !== firstPolygonSelection[1]) {
+            setSecondPolygonSelection([collectionIndex, polygonIndex])
         } else {
-            setFirstSelection([])
-            setSecondSelection([])
-            setCurrentItem(index)
-            setCurrentObject(polygonObjects[index])
-
+            clearSelections()
+            setCurrentFeatureCollection(featureCollections[collectionIndex])
         }
-        console.log("Item: ", JSON.stringify(polygonObjects[index].features[pIndex]))
+    };
+
+    let clearSelections = () => {
+        setFirstPolygonSelection([])
+        setSecondPolygonSelection([])
     }
 
-    function handleUnion(e) {
-        e.preventDefault();
-        let currFeatureCollection = polygonObjects[firstSelection[0]]
-        let theUnion = union(
-            currFeatureCollection.features[firstSelection[1]],
-            currFeatureCollection.features[secondSelection[1]])
-        console.log("UNION: ", JSON.stringify(theUnion))
+    let generateNewCollection = newPolygon => {
+        let selectedFeatureCollection = featureCollections[firstPolygonSelection[0]]
+        let removeValFromIndex = [firstPolygonSelection[1], secondPolygonSelection[1]];
 
+        let indexSet = new Set(removeValFromIndex);
 
-        const removeValFromIndex = [firstSelection[1], secondSelection[1]];
+        let arrayWithValuesRemoved = selectedFeatureCollection.features.filter((value, i) => !indexSet.has(i));
 
-        const indexSet = new Set(removeValFromIndex);
-
-        const arrayWithValuesRemoved = currFeatureCollection.features.filter((value, i) => !indexSet.has(i));
-
-        currFeatureCollection = {
-            ...currFeatureCollection,
+        selectedFeatureCollection = {
+            ...selectedFeatureCollection,
             features: [...arrayWithValuesRemoved, {
-                ...theUnion
+                ...newPolygon
             }]
         }
 
-        let t = [...polygonObjects];
-        t[firstSelection[0]] = currFeatureCollection;
-        setPolygonObjects(t)
+        let copyOfPolygonObjects = [...featureCollections];
+        copyOfPolygonObjects[firstPolygonSelection[0]] = selectedFeatureCollection;
+        setFeatureCollections(copyOfPolygonObjects)
 
-        setCurrentObject(currFeatureCollection)
+        clearSelections()
+        setCurrentFeatureCollection(selectedFeatureCollection)
 
+    };
 
-        console.log(JSON.stringify(polygonObjects[firstSelection[0]]))
-        console.log(JSON.stringify(currFeatureCollection))
-
-    }
-
-    function handleIntersection(e) {
+    let generatePolygonUnion = e => {
         e.preventDefault();
-        let currFeatureCollection = polygonObjects[firstSelection[0]]
-        let theUnion = intersect(
-            currFeatureCollection.features[firstSelection[1]],
-            currFeatureCollection.features[secondSelection[1]])
-        console.log("Intersect: ", JSON.stringify(theUnion))
 
+        let currentFeatureCollection = featureCollections[firstPolygonSelection[0]]
 
-        const removeValFromIndex = [firstSelection[1], secondSelection[1]];
-
-        const indexSet = new Set(removeValFromIndex);
-
-        const arrayWithValuesRemoved = currFeatureCollection.features.filter((value, i) => !indexSet.has(i));
-
-        currFeatureCollection = {
-            ...currFeatureCollection,
-            features: [...arrayWithValuesRemoved, {
-                ...theUnion
-            }]
+        try {
+            let newPolygon = union(
+                currentFeatureCollection.features[firstPolygonSelection[1]],
+                currentFeatureCollection.features[secondPolygonSelection[1]]
+            )
+            if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Union is not calculable')
+            generateNewCollection(newPolygon)
+        } catch (e) {
+            // TODO: Surface this error to the user
+            console.error("There was an error calculating the union. Most likely the two polygons are not eligible for this operation.")
         }
+    };
 
-        let t = [...polygonObjects];
-        t[firstSelection[0]] = currFeatureCollection;
-        setPolygonObjects(t)
+    let generatePolygonIntersection = e => {
+        e.preventDefault();
+        let currFeatureCollection = featureCollections[firstPolygonSelection[0]]
+        try {
+            let newPolygon = intersect(
+                currFeatureCollection.features[firstPolygonSelection[1]],
+                currFeatureCollection.features[secondPolygonSelection[1]])
+            if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Intersection is not calculable')
+            generateNewCollection(newPolygon)
+        } catch (e) {
+            // TODO: Surface this error to the user
+            console.error("There was an error calculating the intersection. Most likely the two polygons are not eligible for this operation.")
+        }
+    };
 
-        setCurrentObject(currFeatureCollection)
-
-
-        console.log(JSON.stringify(polygonObjects[firstSelection[0]]))
-        console.log(JSON.stringify(currFeatureCollection))
-
+    let calculatePolygonArea = (polygon) => {
+        return area(polygon).toFixed(3)
     }
 
-    let listOfPolygons = () => {
-        return polygonObjects.map( (element, index) => {
-            return <div key={index}>
-                <button className={"list-feature-collection"} key={`${index}-main`} onClick={e => handleFeatureCollectionButton(e, index)}>Collection {index + 1}</button>
-                {
-                    element.features.map((polygon, pIndex) => {
-                        return <div key={pIndex}>
-                            <button className={"list-polygon-item"} key={`${pIndex}-main`} onClick={e => handlePolygonButton(e, index, pIndex)} >Polygon {pIndex + 1}</button>
-                        </div>
-                    })
-
-                }
-            </div>
-
+    let getPolygonButtonList = () => {
+        return featureCollections.map( (element, index) => {
+            return (
+                <div key={index}>
+                    <button
+                        className={"button list-feature-collection"}
+                        key={`${index}-main`}
+                        onClick={e => handleFeatureCollectionSelectButton(e, index)}
+                    >
+                        Collection {index + 1}
+                    </button>
+                    {
+                        element.features.map((polygon, pIndex) => {
+                            return <div key={pIndex}>
+                                <button
+                                    className={"button list-polygon-item"}
+                                    key={`${pIndex}-main`}
+                                    onClick={e => handlePolygonSelectButton(e, index, pIndex)}
+                                >
+                                    Polygon {pIndex + 1}
+                                </button>
+                            </div>
+                        })
+                    }
+                </div>
+            )
         } )
     }
 
-    return (
-        <div className="ViewPort">
-            <h1>Polygon Calculation Machine</h1>
-            <div className="Left">
-                <div className={"Selector"}>
-                    {listOfPolygons()}
+    let getStatisticsPanel = () => {
+        let polygon1area = () => calculatePolygonArea(featureCollections[firstPolygonSelection[0]].features[firstPolygonSelection[1]])
+        let polygon2area = () => calculatePolygonArea(featureCollections[secondPolygonSelection[0]].features[secondPolygonSelection[1]])
+        let totalArea = () => (parseFloat(polygon1area()) + parseFloat(polygon2area())).toFixed(3)
+        return (
+            <h2>
+                <div className={'margin-bottom'}>Current Collection: {(firstPolygonSelection[0] + 1)}</div>
+                <div className={'margin-bottom'}>You have selected:</div>
+                <div className={'text-black indent-20-px margin-bottom'}>Polygon: {(firstPolygonSelection[1] + 1)}</div>
+                <div className={'indent-20-px margin-bottom-extra'}>Area: {polygon1area()}</div>
+                <div className={'indent-20-px margin-bottom'}>
+                    {secondPolygonSelection.length ? `Polygon: ${(secondPolygonSelection[1] + 1)} ` : ''}
                 </div>
+                <div className={'indent-20-px margin-bottom-extra'}>
+                    {secondPolygonSelection.length ? `Area: ${polygon2area()}` : ''}
+                </div>
+                <div className={'margin-bottom'}>{secondPolygonSelection.length ? `Total Area: ${totalArea()}` : ''}</div>
+
+            </h2>
+        )
+    }
+    
+    let getSelectionPanel = () => {
+        if (firstPolygonSelection.length) {
+            return (
+                <div className={'statistics-info'}>
+                    <div className={'button-group'}>
+                        <button onClick={generatePolygonUnion}
+                            className={'button button-side margin-right-sm'}
+                            disabled={!secondPolygonSelection.length}
+                        >
+                            Calculate Union
+                        </button>
+                        <button onClick={generatePolygonIntersection}
+                            className={'button button-side'}
+                            disabled={!secondPolygonSelection.length}
+                        >
+                            Calculate Intersection
+                        </button>
+                    </div>
+                    {getStatisticsPanel()}
+                </div>
+            )
+        } else {
+            return (<h2 className={"margin-top-0"}>Select a polygon to begin.</h2>)
+        }
+    }
+
+    return (
+        <div className="viewport-main">
+            <div className="polygon-list-panel">
+                { getPolygonButtonList() }
             </div>
-            <div className="Main">
-                <Main geojson={currentObject}/>
+            <div className="polygon-viewer-panel">
+                <PolygonViewer geojson={currentFeatureCollection}/>
             </div>
-            <div className="Right">
-                <h2 className={"Selector2"}>
-                    {firstSelection.length ? `In Collection: ${(firstSelection[0] + 1)}` : ''}
-                    <br/>
-                    {firstSelection.length ? `You have selected: ` : ''}
-                    <br/>
-                    {firstSelection.length ? `Polygon: ${(firstSelection[1] + 1)} ` : ''}
-                    <br/>
-                    {secondSelection.length ? `Polygon: ${(secondSelection[1] + 1)} ` : ''}
-                    <br/>
-                    <br/>
-                    <button onClick={handleUnion}>Calculate Union</button>
-                    <br/>
-                    <br/>
-                    <button onClick={handleIntersection}>Calculate Intersection</button>
-                </h2>
+            <div className="statistics-panel">
+                { getSelectionPanel() }
             </div>
         </div>
     )

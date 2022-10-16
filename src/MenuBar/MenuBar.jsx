@@ -2,8 +2,8 @@ import './MenuBar.css'
 
 function MenuBar() {
     return (
-        <div className="MenuBar">
-            This is a header bar
+        <div className="menu-bar">
+            <h1>Polygon Calculation Machine</h1>
         </div>
     )
 }

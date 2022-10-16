@@ -126,7 +126,7 @@ function Viewport() {
             return (
                 <div key={index}>
                     <button
-                        className={"button list-feature-collection"}
+                        className={'button list-feature-collection'}
                         key={`${index}-main`}
                         onClick={e => handleFeatureCollectionSelectButton(e, index)}
                     >
@@ -134,9 +134,12 @@ function Viewport() {
                     </button>
                     {
                         element.features.map((polygon, pIndex) => {
+                            let color = ''
+                            if (firstPolygonSelection[0] === index && firstPolygonSelection[1] ===pIndex) color = 'button-blue'
+                            if (secondPolygonSelection[0] === index && secondPolygonSelection[1] ===pIndex) color = 'button-green'
                             return <div key={pIndex}>
                                 <button
-                                    className={"button list-polygon-item"}
+                                    className={`button list-polygon-item ${color}`}
                                     key={`${pIndex}-main`}
                                     onClick={e => handlePolygonSelectButton(e, index, pIndex)}
                                 >

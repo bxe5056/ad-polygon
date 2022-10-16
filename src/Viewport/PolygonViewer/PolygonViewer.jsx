@@ -35,7 +35,7 @@ function PolygonViewer(props) {
 
     let getPolygons = () => {
         return geoJSON.map((feature, index) => {
-            let color = 'purple';
+            let color = '#f7ca00';
             if (firstPolygon[1] !== undefined) {
                 if (index === firstPolygon[1]) color = 'blue';
             }

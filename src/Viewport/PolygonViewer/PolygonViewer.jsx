@@ -9,18 +9,12 @@ import { MapContainer, Marker, Polygon, Popup, TileLayer } from "react-leaflet";
 
 function PolygonViewer(props) {
 
-    // eslint-disable-next-line react/prop-types
     let [geoJSON, setGeoJSON] = useState([...props.geojson.features]);
-    // eslint-disable-next-line react/prop-types
     let [firstPolygon, setFirstPolygon] = useState(props.firstPolygon);
-    // eslint-disable-next-line react/prop-types
     let [secondPolygon, setSecondPolygon] = useState(props.secondPolygon);
 
-    // eslint-disable-next-line react/prop-types
     useEffect(() => { setGeoJSON([...props.geojson.features]) }, [props.geojson.features]);
-    // eslint-disable-next-line react/prop-types
     useEffect(() => { setFirstPolygon(props.firstPolygon) }, [props.firstPolygon]);
-    // eslint-disable-next-line react/prop-types
     useEffect(() => { setSecondPolygon(props.secondPolygon) }, [props.secondPolygon]);
 
     let getBounds = () => {

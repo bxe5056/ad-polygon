@@ -20,7 +20,8 @@ module.exports = {
         "indent": [1, 4],
         "react/react-in-jsx-scope": [0],
         "no-unused-vars": [1],
-        "object-curly-spacing": [1, 'always']
+        "object-curly-spacing": [1, 'always'],
+        "react/prop-types": [0]
     },
     "settings": {
         "react": {

@@ -9,7 +9,7 @@ import GeoJSON1 from '../GeoJSON/SE_State_Management_Polygons_1.json'
 import GeoJSON2 from '../GeoJSON/SE_State_Management_Polygons_2.json'
 
 // TODO: Switch these imports to specific modules instead of mega 'turf' package
-import { intersect, union, area } from "@turf/turf";
+import { area, intersect, union } from "@turf/turf";
 
 function Viewport() {
     let [featureCollections, setFeatureCollections] = useState([
@@ -53,6 +53,21 @@ function Viewport() {
         setSecondPolygonSelection([])
     }
 
+    let handleMultiPolygon = newMultiPolygon => {
+        return newMultiPolygon.geometry.coordinates.map(coordinateArray => {
+            return {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        ...coordinateArray
+                    ]
+                }
+            }
+        })
+    }
+
     let generateNewCollection = newPolygon => {
         let selectedFeatureCollection = featureCollections[firstPolygonSelection[0]]
         let removeValFromIndex = [firstPolygonSelection[1], secondPolygonSelection[1]];
@@ -61,11 +76,20 @@ function Viewport() {
 
         let arrayWithValuesRemoved = selectedFeatureCollection.features.filter((value, i) => !indexSet.has(i));
 
-        selectedFeatureCollection = {
-            ...selectedFeatureCollection,
-            features: [...arrayWithValuesRemoved, {
-                ...newPolygon
-            }]
+        if(newPolygon.geometry.type === 'MultiPolygon'){
+            selectedFeatureCollection = {
+                ...selectedFeatureCollection,
+                features: [...arrayWithValuesRemoved,
+                    ...handleMultiPolygon(newPolygon)
+                ]
+            }
+        } else {
+            selectedFeatureCollection = {
+                ...selectedFeatureCollection,
+                features: [...arrayWithValuesRemoved, {
+                    ...newPolygon
+                }]
+            }
         }
 
         let copyOfPolygonObjects = [...featureCollections];
@@ -86,7 +110,7 @@ function Viewport() {
                 currentFeatureCollection.features[firstPolygonSelection[1]],
                 currentFeatureCollection.features[secondPolygonSelection[1]]
             )
-            if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Union is not calculable')
+            if (newPolygon.geometry.coordinates.length === 0) throw new Error('Union is not calculable')
             generateNewCollection(newPolygon)
         } catch (e) {
             let msg = 'There was a problem calculating the union.'
@@ -106,7 +130,7 @@ function Viewport() {
             let newPolygon = intersect(
                 currFeatureCollection.features[firstPolygonSelection[1]],
                 currFeatureCollection.features[secondPolygonSelection[1]])
-            if (newPolygon.geometry.coordinates.length !== 1) throw new Error('Intersection is not calculable')
+            if (newPolygon.geometry.coordinates.length === 0) throw new Error('Intersection is not calculable')
             generateNewCollection(newPolygon)
         } catch (e) {
             let msg = 'There was a problem calculating the intersection.'

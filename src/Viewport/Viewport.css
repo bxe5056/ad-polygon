@@ -125,6 +125,7 @@ h1 {
 
 h2 {
   color: #1a1a1a;
+  font-size: 95%
 }
 
 .text-blue {
@@ -144,7 +145,7 @@ h2 {
 
 .error-message {
   font-weight: bold;
-  font-size: 80%;
+  font-size: 75%;
   margin-left: 5px;
 }
 

@@ -30,6 +30,7 @@ function Viewport() {
     let handleFeatureCollectionSelectButton = (e, index) => {
         e.preventDefault();
         clearError()
+        clearSelections()
         setCurrentFeatureCollection(featureCollections[index])
     }
 
